@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valentine Bouquet Surprise</title>
+    <style>
+         :root {
+            --primary-red: #ff4d6d;
+            --soft-pink: #ffccd5;
+            --deep-pink: #ff758f;
+            --stem-green: #2d6a4f;
+            --paper-beige: #f8edeb;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #ffe5ec;
+            font-family: 'Georgia', serif;
+            overflow: hidden;
+        }
+        /* --- THE CARD --- */
+
+        .card-container {
+            position: relative;
+            width: 350px;
+            height: 480px;
+            cursor: pointer;
+            perspective: 1200px;
+            z-index: 10;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .card-container.open .card-inner {
+            transform: rotateY(-180deg);
+        }
+
+        .card-front,
+        .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 10px solid white;
+        }
+
+        .card-front {
+            background: var(--primary-red);
+            color: white;
+        }
+
+        .card-back {
+            background: white;
+            transform: rotateY(180deg);
+            padding: 20px;
+            text-align: center;
+            overflow: hidden;
+        }
+        /* --- THE BOUQUET --- */
+
+        .bouquet-container {
+            position: relative;
+            height: 220px;
+            width: 200px;
+            margin-top: 20px;
+        }
+
+        .flower-wrap {
+            position: absolute;
+            bottom: 40px;
+            transform-origin: bottom center;
+        }
+
+        .flower {
+            position: relative;
+            width: 60px;
+            height: 60px;
+        }
+
+        .petal {
+            position: absolute;
+            background: var(--deep-pink);
+            width: 25px;
+            height: 25px;
+            border-radius: 50% 50% 0 50%;
+            transform-origin: bottom right;
+            opacity: 0;
+            transition: all 0.8s ease-out;
+        }
+
+        .stem {
+            width: 5px;
+            height: 100px;
+            background: var(--stem-green);
+            margin: 0 auto;
+            border-radius: 10px;
+        }
+        /* Bouquet Wrapper */
+
+        .wrapper {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 100px;
+            background: var(--paper-beige);
+            clip-path: polygon(0% 0%, 100% 0%, 80% 100%, 20% 100%);
+            z-index: 5;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .bow {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 6;
+            font-size: 20px;
+        }
+        /* --- FALLING HEARTS --- */
+
+        .heart-particle {
+            position: absolute;
+            color: var(--primary-red);
+            user-select: none;
+            pointer-events: none;
+            z-index: 1;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(110vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .message-text {
+            margin-top: 15px;
+        }
+
+        .names {
+            font-size: 0.9rem;
+            color: #888;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card-container" onclick="toggleCard()">
+        <div class="card-inner">
+            <div class="card-front">
+                <div style="font-size: 80px;">💐</div>
+                <h1 style="letter-spacing: 2px;">FOR YOU</h1>
+                <p>Click to unwrap</p>
+            </div>
+
+            <div class="card-back">
+                <div class="bouquet-container">
+                    <div class="flower-wrap" style="left: 30px; transform: rotate(-15deg); bottom: 50px;">
+                        <div class="flower" id="f1"></div>
+                        <div class="stem" style="height: 120px;"></div>
+                    </div>
+                    <div class="flower-wrap" style="left: 70px; bottom: 60px; z-index: 2;">
+                        <div class="flower" id="f2"></div>
+                        <div class="stem" style="height: 130px;"></div>
+                    </div>
+                    <div class="flower-wrap" style="left: 110px; transform: rotate(15deg); bottom: 50px;">
+                        <div class="flower" id="f3"></div>
+                        <div class="stem" style="height: 120px;"></div>
+                    </div>
+
+                    <div class="wrapper"></div>
+                    <div class="bow">🎀</div>
+                </div>
+
+                <div class="message-text">
+                    <h2 style="color: var(--primary-red); margin: 0;">Happy Valentine's Day!</h2>
+                    <p style="font-style: italic;">"A bouquet of love for someone special."</p>
+                </div>
+                <div class="names">
+                    <span>To: My Favorite Person</span><br>
+                    <span>From: Yours Truly</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let heartInterval;
+
+        // Function to build petals for a specific flower ID
+        function createPetals(id) {
+            const flower = document.getElementById(id);
+            for (let i = 0; i < 8; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+                // Add slight color variations to flowers
+                if (id === 'f1') petal.style.background = '#ffb3c1';
+                if (id === 'f3') petal.style.background = '#fb6f92';
+                flower.appendChild(petal);
+            }
+        }
+
+        createPetals('f1');
+        createPetals('f2');
+        createPetals('f3');
+
+        function toggleCard() {
+            const card = document.querySelector('.card-container');
+            const opening = !card.classList.contains('open');
+            card.classList.toggle('open');
+
+            if (opening) {
+                bloomBouquet();
+                startHearts();
+            } else {
+                stopHearts();
+                resetBouquet();
+            }
+        }
+
+        function bloomBouquet() {
+            const allPetals = document.querySelectorAll('.petal');
+            allPetals.forEach((p, i) => {
+                setTimeout(() => {
+                    p.style.opacity = '1';
+                    // The % 8 keeps the rotation logic working for each flower set
+                    p.style.transform = `rotate(${(i % 8) * 45}deg) scale(1.1)`;
+                }, i * 50 + 500);
+            });
+        }
+
+        function resetBouquet() {
+            document.querySelectorAll('.petal').forEach((p, i) => {
+                p.style.transform = `rotate(${(i % 8) * 45}deg) scale(0)`;
+                p.style.opacity = '0';
+            });
+        }
+
+        function startHearts() {
+            heartInterval = setInterval(createHeart, 400);
+        }
+
+        function stopHearts() {
+            clearInterval(heartInterval);
+        }
+
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.innerHTML = ['❤️', '💖', '🌸', '💕'][Math.floor(Math.random() * 4)];
+            heart.className = 'heart-particle';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.top = '-20px';
+            heart.style.fontSize = (Math.random() * 15 + 15) + 'px';
+            const duration = (Math.random() * 3 + 3);
+            heart.style.animation = `fall ${duration}s linear forwards`;
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), duration * 1000);
+        }
+    </script>
+</body>
+
+</html>
